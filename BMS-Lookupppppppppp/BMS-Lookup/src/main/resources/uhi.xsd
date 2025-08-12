@@ -1,0 +1,249 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:tns="http://teradata.com/uhi"
+           targetNamespace="http://teradata.com/uhi"
+           elementFormDefault="qualified"
+           attributeFormDefault="unqualified">
+
+    <!-- ========================================== -->
+    <!-- تعريف GGHeader - معلومات الطلب الأساسية -->
+    <!-- ========================================== -->
+    <xs:complexType name="GGHeader">
+        <xs:sequence>
+            <!-- معرف الارتباط - مطلوب -->
+            <xs:element name="correlationId" type="xs:string" minOccurs="1" maxOccurs="1">
+                <xs:annotation>
+                    <xs:documentation>
+                        معرف فريد لربط الطلب بالاستجابة
+                        الحد الأقصى: 50 حرف
+                        مثال: REQ-2024-001
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+
+            <!-- القناة المصدر - مطلوب -->
+            <xs:element name="originatingChannel" type="xs:string" minOccurs="1" maxOccurs="1">
+                <xs:annotation>
+                    <xs:documentation>
+                        القناة التي أرسلت الطلب
+                        القيم المسموحة: WEB, MOBILE, API, SYSTEM, BATCH, INTERFACE
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+
+            <!-- معرف طلب القناة - مطلوب -->
+            <xs:element name="channelRequestId" type="xs:string" minOccurs="1" maxOccurs="1">
+                <xs:annotation>
+                    <xs:documentation>
+                        معرف فريد للطلب من القناة
+                        الحد الأقصى: 50 حرف
+                        مثال: CH-001-2024
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+
+            <!-- نوع المستخدم المصدر - مطلوب -->
+            <xs:element name="originatingUserType" type="xs:string" minOccurs="1" maxOccurs="1">
+                <xs:annotation>
+                    <xs:documentation>
+                        نوع المستخدم الذي أرسل الطلب
+                        القيم المسموحة: ADMIN, USER, SYSTEM, SERVICE, BATCH, INTERFACE
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+
+            <!-- معرف المستخدم المصدر - مطلوب -->
+            <xs:element name="originatingUserIdentifier" type="xs:string" minOccurs="1" maxOccurs="1">
+                <xs:annotation>
+                    <xs:documentation>
+                        معرف المستخدم الذي أرسل الطلب
+                        الحد الأقصى: 100 حرف
+                        مثال: admin001, user123
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+
+            <!-- معرف الخدمة - مطلوب -->
+            <xs:element name="serviceSlug" type="xs:string" minOccurs="1" maxOccurs="1">
+                <xs:annotation>
+                    <xs:documentation>
+                        معرف الخدمة المطلوبة
+                        الحد الأقصى: 50 حرف
+                        مثال: lookupDisease, insertArea
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+
+            <!-- معرف كيان الخدمة - مطلوب -->
+            <xs:element name="serviceEntityId" type="xs:string" minOccurs="1" maxOccurs="1">
+                <xs:annotation>
+                    <xs:documentation>
+                        معرف كيان الخدمة
+                        الحد الأقصى: 100 حرف
+                        مثال: admin001, system
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+
+    <!-- ========================================== -->
+    <!-- تعريف GenericRequest - طلب عام -->
+    <!-- ========================================== -->
+    <xs:complexType name="GenericRequest">
+        <xs:sequence>
+            <!-- GGHeader - مطلوب -->
+            <xs:element name="GGheader" type="tns:GGHeader" minOccurs="1" maxOccurs="1">
+                <xs:annotation>
+                    <xs:documentation>
+                        معلومات الطلب الأساسية
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+
+            <!-- معرف السجل - اختياري -->
+            <xs:element name="id" type="xs:string" minOccurs="0" maxOccurs="1">
+                <xs:annotation>
+                    <xs:documentation>
+                        معرف السجل (مطلوب للـ Update)
+                        الحد الأقصى: 50 حرف
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+
+            <!-- مؤشر العملية - مطلوب -->
+            <xs:element name="indicator" type="xs:string" minOccurs="1" maxOccurs="1">
+                <xs:annotation>
+                    <xs:documentation>
+                        نوع العملية المطلوبة
+                        i = Insert (إدراج)
+                        u = Update (تحديث)
+                        l = Lookup (بحث)
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+
+            <!-- بيانات JSON - اختياري -->
+            <xs:element name="jsonPayload" type="xs:string" minOccurs="0" maxOccurs="1">
+                <xs:annotation>
+                    <xs:documentation>
+                        البيانات كـ JSON (مطلوب للـ Insert/Update)
+                        الحد الأقصى: 10000 حرف
+                        مثال: {"name": "Test", "isActive": true}
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+
+    <!-- ========================================== -->
+    <!-- تعريف GenericResponse - استجابة عامة -->
+    <!-- ========================================== -->
+    <xs:complexType name="GenericResponse">
+        <xs:sequence>
+            <!-- كود الاستجابة - مطلوب -->
+            <xs:element name="responseCode" type="xs:int" minOccurs="1" maxOccurs="1">
+                <xs:annotation>
+                    <xs:documentation>
+                        كود الاستجابة
+                        200 = نجح العملية
+                        301 = حقل مطلوب مفقود
+                        302 = قيمة غير صحيحة
+                        400 = خطأ في الطلب
+                        404 = لم يتم العثور على السجل
+                        500 = خطأ داخلي في الخادم
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+
+            <!-- رسالة الاستجابة - مطلوب -->
+            <xs:element name="responseMessage" type="xs:string" minOccurs="1" maxOccurs="1">
+                <xs:annotation>
+                    <xs:documentation>
+                        رسالة وصفية للاستجابة
+                        مثال: "تم إدراج السجل بنجاح"
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+
+            <!-- البيانات - اختياري -->
+            <xs:element name="data" type="xs:string" minOccurs="0" maxOccurs="1">
+                <xs:annotation>
+                    <xs:documentation>
+                        البيانات المُرجعة (للـ Lookup)
+                        صيغة JSON
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+
+            <!-- الطابع الزمني - مطلوب -->
+            <xs:element name="timestamp" type="xs:dateTime" minOccurs="1" maxOccurs="1">
+                <xs:annotation>
+                    <xs:documentation>
+                        وقت معالجة الطلب
+                        صيغة: YYYY-MM-DDTHH:MM:SS
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+
+    <!-- ========================================== -->
+    <!-- تعريف العناصر الجذرية -->
+    <!-- ========================================== -->
+    
+    <!-- عنصر الطلب الجذري -->
+    <xs:element name="GenericRequest" type="tns:GenericRequest">
+        <xs:annotation>
+            <xs:documentation>
+                طلب عام للخدمة
+                يدعم عمليات Insert, Update, Lookup
+            </xs:documentation>
+        </xs:annotation>
+    </xs:element>
+
+    <!-- عنصر الاستجابة الجذري -->
+    <xs:element name="GenericResponse" type="tns:GenericResponse">
+        <xs:annotation>
+            <xs:documentation>
+                استجابة عامة من الخدمة
+                يحتوي على كود الحالة والرسالة والبيانات
+            </xs:documentation>
+        </xs:annotation>
+    </xs:element>
+
+    <!-- ========================================== -->
+    <!-- تعريف أنواع بيانات إضافية -->
+    <!-- ========================================== -->
+    
+    <!-- نوع بيانات للتواريخ -->
+    <xs:simpleType name="DateType">
+        <xs:restriction base="xs:date">
+            <xs:pattern value="\d{4}-\d{2}-\d{2}"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <!-- نوع بيانات للوقت -->
+    <xs:simpleType name="TimeType">
+        <xs:restriction base="xs:time">
+            <xs:pattern value="\d{2}:\d{2}:\d{2}"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <!-- نوع بيانات للـ String محدود -->
+    <xs:simpleType name="LimitedStringType">
+        <xs:restriction base="xs:string">
+            <xs:maxLength value="1000"/>
+            <xs:pattern value="[A-Za-z0-9_\-\s\.]+"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <!-- نوع بيانات للـ Integer -->
+    <xs:simpleType name="IntegerType">
+        <xs:restriction base="xs:integer">
+            <xs:minInclusive value="-2147483648"/>
+            <xs:maxInclusive value="2147483647"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+</xs:schema>
