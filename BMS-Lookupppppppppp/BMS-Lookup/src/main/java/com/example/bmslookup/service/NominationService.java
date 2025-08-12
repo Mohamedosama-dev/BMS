@@ -22,16 +22,16 @@ public class NominationService {
      * @return The number of rows affected.
      */
     public int deactivateOldHeadOfFamily(String familyId) {
-        if (familyId == null || familyId.trim().isEmpty()) {
+        if (familyId == null || familyId.trim().isEmpty()) {  // Check if familyId is null or empty
             logger.warn("deactivateOldHeadOfFamily called with null or empty familyId. No action taken.");
             return 0;
         }
-        String sql = "UPDATE GDEV1T_UHI_DATA.beneficiary SET \"activationStatus\" = 'inactive' WHERE \"familyId\" = ? AND LOWER(\"familyRelation\") = LOWER('Head of Family')";
-        int rowsAffected = jdbcTemplate.update(sql, familyId);
+        String sql = "UPDATE GDEV1T_UHI_DATA.beneficiary SET \"activationStatus\" = 'inactive' WHERE \"familyId\" = ? AND LOWER(\"familyRelation\") = LOWER('Head of Family')"; // Update the activationStatus to 'inactive' for the Head of Family
+        int rowsAffected = jdbcTemplate.update(sql, familyId); // Execute the update query with the provided familyId
         logger.info("Deactivated old Head of Family for familyId {}. Rows affected: {}", familyId, rowsAffected);
         return rowsAffected;
     }
-
+    
     /**
      * Updates familyId for all dependents (non-Head of Family members) from oldFamilyId to newFamilyId.
      * Does NOT change their activationStatus.
@@ -85,9 +85,9 @@ public class NominationService {
             logger.warn("No beneficiary found with id {}. No update performed.", id);
             return 0;
         }
-        
+
         // If the record exists, update its familyRelation
-        String updateSql = "UPDATE GDEV1T_UHI_DATA.beneficiary SET familyRelation = 'Head of Family' WHERE Id = ?";        
+        String updateSql = "UPDATE GDEV1T_UHI_DATA.beneficiary SET familyRelation = 'Head of Family' WHERE Id = ?";
         int rowsAffected = jdbcTemplate.update(updateSql, id);
         logger.info("Updated familyRelation to Head of Family for beneficiary with id {}. Rows affected: {}", id, rowsAffected);
         return rowsAffected;
